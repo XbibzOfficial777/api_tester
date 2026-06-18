@@ -424,10 +424,10 @@ class CodeGenerator extends UseCase<String, CodeGeneratorParams> {
     buffer.writeln('      "${_getContentType(headers)}"');
     buffer.writeln('    );');
     buffer.writeln();
-    buffer.writeln('    var response = await client.$methodAsync("$url", content);');
-    buffer.writeln('    Console.WriteLine($"Status: {(int)response.StatusCode}");');
+    buffer.writeln('    var response = await client.${method}Async("$url", content);');
+    buffer.writeln(r'    Console.WriteLine($"Status: {(int)response.StatusCode}");');
     buffer.writeln('    var body = await response.Content.ReadAsStringAsync();');
-    buffer.writeln('    Console.WriteLine($"Body: {body}");');
+    buffer.writeln(r'    Console.WriteLine($"Body: {body}");');
     buffer.writeln('  }');
     buffer.writeln('}');
 
