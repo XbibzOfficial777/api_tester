@@ -329,7 +329,7 @@ class CodeGenerator extends UseCase<String, CodeGeneratorParams> {
     buffer.writeln();
     buffer.writeln('    BufferedReader br = new BufferedReader(');
     buffer.writeln('      new InputStreamReader(');
-    buffer.writeln('        status < 400 ? conn.getInputStream() : conn.getErrorStream()'));
+    buffer.writeln('        status < 400 ? conn.getInputStream() : conn.getErrorStream()');
     buffer.writeln('      )');
     buffer.writeln('    );');
     buffer.writeln('    StringBuilder response = new StringBuilder();');
@@ -448,10 +448,10 @@ class CodeGenerator extends UseCase<String, CodeGeneratorParams> {
     buffer.writeln('package main');
     buffer.writeln();
     buffer.writeln('import (');
-    buffer.writeln('	"bytes"');
-    buffer.writeln('	"fmt"');
-    buffer.writeln('	"io"');
-    buffer.writeln('	"net/http"');
+    buffer.writeln('    "bytes"');
+    buffer.writeln('    "fmt"');
+    buffer.writeln('    "io"');
+    buffer.writeln('    "net/http"');
     buffer.writeln(')');
     buffer.writeln();
     buffer.writeln('func main() {');
@@ -459,38 +459,38 @@ class CodeGenerator extends UseCase<String, CodeGeneratorParams> {
     // Body.
     if (_hasBody(request) && method != 'GET' && method != 'HEAD') {
       buffer
-          .writeln('	body := []byte(`' + request.bodyContent + '`)');
+          .writeln('    body := []byte(`' + request.bodyContent + '`)');
     }
 
     // Request creation.
     if (_hasBody(request) && method != 'GET' && method != 'HEAD') {
-      buffer.writeln('	req, err := http.NewRequest("$method", "$url", bytes.NewBuffer(body))');
+      buffer.writeln('  req, err := http.NewRequest("$method", "$url", bytes.NewBuffer(body))');
     } else {
       buffer.writeln(
-          '	req, err := http.NewRequest("$method", "$url", nil)');
+          '     req, err := http.NewRequest("$method", "$url", nil)');
     }
-    buffer.writeln('	if err != nil {');
-    buffer.writeln('		panic(err)');
-    buffer.writeln('	}');
+    buffer.writeln('    if err != nil {');
+    buffer.writeln('            panic(err)');
+    buffer.writeln('    }');
     buffer.writeln();
 
     // Headers.
     for (final entry in headers.entries) {
       buffer.writeln(
-          '	req.Header.Set("${_escapeGo(entry.key)}", "${_escapeGo(entry.value)}")');
+          '     req.Header.Set("${_escapeGo(entry.key)}", "${_escapeGo(entry.value)}")');
     }
 
     buffer.writeln();
-    buffer.writeln('	client := &http.Client{}');
-    buffer.writeln('	resp, err := client.Do(req)');
-    buffer.writeln('	if err != nil {');
-    buffer.writeln('		panic(err)');
-    buffer.writeln('	}');
-    buffer.writeln('	defer resp.Body.Close()');
+    buffer.writeln('    client := &http.Client{}');
+    buffer.writeln('    resp, err := client.Do(req)');
+    buffer.writeln('    if err != nil {');
+    buffer.writeln('            panic(err)');
+    buffer.writeln('    }');
+    buffer.writeln('    defer resp.Body.Close()');
     buffer.writeln();
-    buffer.writeln('	fmt.Printf("Status: %d\\n", resp.StatusCode)');
-    buffer.writeln('	body, _ := io.ReadAll(resp.Body)');
-    buffer.writeln('	fmt.Printf("Body: %s\\n", body)');
+    buffer.writeln('    fmt.Printf("Status: %d\\n", resp.StatusCode)');
+    buffer.writeln('    body, _ := io.ReadAll(resp.Body)');
+    buffer.writeln('    fmt.Printf("Body: %s\\n", body)');
     buffer.writeln('}');
 
     return buffer.toString();

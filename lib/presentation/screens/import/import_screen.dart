@@ -312,13 +312,13 @@ class _ImportScreenNotifier extends StateNotifier<_ImportScreenState> {
       // Regex to find API URLs in href, src, action, fetch(), and
       // inline JavaScript strings.
       final urlRegex = RegExp(
-        r'(?:https?://[^"\'<>\s]+|["\'])(/api/[^"\'<>\s]+)(?:["\']?)',
+        r'''(?:https?://[^"'<>\s]+|["'])(/api/[^"'<>\s]+)(?:["']?)''',
         caseSensitive: false,
       );
 
       // Also match URLs that look like API endpoints.
       final endpointRegex = RegExp(
-        r'https?://[^"\'<>\s]+/api/[^"\'<>\s]+',
+        r'''https?://[^"'<>\s]+/api/[^"'<>\s]+''',
         caseSensitive: false,
       );
 
