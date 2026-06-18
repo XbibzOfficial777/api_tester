@@ -24,7 +24,7 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Generate code (freezed, json_serializable, drift)
+      - name: Generate code (first pass)
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Regenerate Android project (v2 embedding)
@@ -32,12 +32,22 @@ jobs:
           cp android/app/src/main/AndroidManifest.xml /tmp/AndroidManifest.xml
           cp android/app/src/main/kotlin/com/api/tester/MainActivity.kt /tmp/MainActivity.kt
           cp android/app/src/main/res/values/strings.xml /tmp/strings.xml
+          cp lib/main.dart /tmp/main.dart
+          cp pubspec.yaml /tmp/pubspec.yaml
           rm -rf android/
           flutter create --platforms=android --org com.api.tester --project-name api_tester .
           cp /tmp/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
           mkdir -p android/app/src/main/kotlin/com/api/tester/
           cp /tmp/MainActivity.kt android/app/src/main/kotlin/com/api/tester/MainActivity.kt
           cp /tmp/strings.xml android/app/src/main/res/values/strings.xml
+          cp /tmp/main.dart lib/main.dart
+          cp /tmp/pubspec.yaml pubspec.yaml
+
+      - name: Get dependencies (after flutter create)
+        run: flutter pub get
+
+      - name: Generate code (second pass)
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build APK (release)
         run: flutter build apk --release

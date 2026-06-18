@@ -20,7 +20,7 @@ class HistoryRepositoryImpl implements HistoryRepository {
   // ---------------------------------------------------------------------------
 
   @override
-  Future<List<RequestHistoryEntry>> getHistoryByWorkspace(
+  Future<List<RequestHistoryTableData>> getHistoryByWorkspace(
       String workspaceId) async {
     try {
       final rows =
@@ -33,7 +33,7 @@ class HistoryRepositoryImpl implements HistoryRepository {
   }
 
   @override
-  Future<RequestHistoryEntry?> getHistoryById(String id) async {
+  Future<RequestHistoryTableData?> getHistoryById(String id) async {
     try {
       final row = await _db.historyDao.getHistoryById(id);
       return row != null ? HistoryMapper.toEntity(row) : null;
@@ -43,7 +43,7 @@ class HistoryRepositoryImpl implements HistoryRepository {
   }
 
   @override
-  Future<List<RequestHistoryEntry>> getHistoryByRequest(
+  Future<List<RequestHistoryTableData>> getHistoryByRequest(
       String requestId) async {
     try {
       final rows = await _db.historyDao.getHistoryByRequest(requestId);
@@ -55,8 +55,8 @@ class HistoryRepositoryImpl implements HistoryRepository {
   }
 
   @override
-  Future<RequestHistoryEntry> createHistoryEntry(
-      RequestHistoryEntry entry) async {
+  Future<RequestHistoryTableData> createHistoryEntry(
+      RequestHistoryTableData entry) async {
     try {
       final companion = HistoryMapper.fromEntity(entry);
       await _db.historyDao.insertHistoryEntry(companion);
@@ -96,7 +96,7 @@ class HistoryRepositoryImpl implements HistoryRepository {
   }
 
   @override
-  Stream<List<RequestHistoryEntry>> watchHistoryByWorkspace(
+  Stream<List<RequestHistoryTableData>> watchHistoryByWorkspace(
       String workspaceId) {
     try {
       return _db.historyDao

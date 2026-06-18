@@ -13,7 +13,7 @@ import 'package:drift/drift.dart';
 import '../../../domain/entities/api_request.dart';
 import '../../../domain/entities/body_type.dart';
 import '../../../domain/entities/key_value.dart';
-import '../datasources/local/database/tables.dart';
+import '../datasources/local/database/app_database.dart';
 
 /// Stateless helper providing bidirectional mapping for [ApiRequest].
 class RequestMapper {

@@ -81,7 +81,7 @@ class _ImportResult {
 // ---------------------------------------------------------------------------
 
 /// Immutable state for the import screen.
-class _ImportScreenState {
+class _ImportUiState {
   /// Currently active import tab.
   final _ImportTab activeTab;
 
@@ -94,14 +94,14 @@ class _ImportScreenState {
   /// Error message.
   final String? error;
 
-  const _ImportScreenState({
+  const _ImportUiState({
     this.activeTab = _ImportTab.openapi,
     this.isImporting = false,
     this.result,
     this.error,
   });
 
-  _ImportScreenState copyWith({
+  _ImportUiState copyWith({
     _ImportTab? activeTab,
     bool? isImporting,
     _ImportResult? result,
@@ -109,7 +109,7 @@ class _ImportScreenState {
     bool clearResult = false,
     bool clearError = false,
   }) {
-    return _ImportScreenState(
+    return _ImportUiState(
       activeTab: activeTab ?? this.activeTab,
       isImporting: isImporting ?? this.isImporting,
       result: clearResult ? null : (result ?? this.result),
@@ -122,8 +122,8 @@ class _ImportScreenState {
 // Notifier
 // ---------------------------------------------------------------------------
 
-class _ImportScreenNotifier extends StateNotifier<_ImportScreenState> {
-  _ImportScreenNotifier() : super(const _ImportScreenState());
+class _ImportScreenNotifier extends StateNotifier<_ImportUiState> {
+  _ImportScreenNotifier() : super(const _ImportUiState());
 
   static const _uuid = Uuid();
 
@@ -414,7 +414,7 @@ class _ImportScreenNotifier extends StateNotifier<_ImportScreenState> {
 
   /// Persists the imported requests to the repository.
   void reset() {
-    state = const _ImportScreenState();
+    state = const _ImportUiState();
   }
 }
 
@@ -423,7 +423,7 @@ class _ImportScreenNotifier extends StateNotifier<_ImportScreenState> {
 // ---------------------------------------------------------------------------
 
 final _importScreenProvider =
-    StateNotifierProvider<_ImportScreenNotifier, _ImportScreenState>(
+    StateNotifierProvider<_ImportScreenNotifier, _ImportUiState>(
   (ref) => _ImportScreenNotifier(),
 );
 
@@ -1155,7 +1155,7 @@ class _HtmlScraperTab extends ConsumerWidget {
 /// extracted requests, and an "Import All" button.
 class _ResultBottomSheet extends ConsumerWidget {
   /// The current import state.
-  final _ImportScreenState state;
+  final _ImportUiState state;
 
   const _ResultBottomSheet({required this.state});
 

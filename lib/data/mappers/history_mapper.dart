@@ -1,13 +1,13 @@
 /// Mapper that converts between [RequestHistoryTableData] (Drift data-class)
-/// and the domain [RequestHistoryEntry] entity.
+/// and the domain [RequestHistory] entity.
 library;
 
 import 'package:drift/drift.dart';
 
 import '../../../domain/entities/request_history.dart';
-import '../datasources/local/database/tables.dart';
+import '../datasources/local/database/app_database.dart';
 
-/// Stateless helper providing bidirectional mapping for [RequestHistoryEntry].
+/// Stateless helper providing bidirectional mapping for [RequestHistoryTableData].
 class HistoryMapper {
   HistoryMapper._();
 
@@ -16,9 +16,9 @@ class HistoryMapper {
   // ---------------------------------------------------------------------------
 
   /// Converts a Drift [RequestHistoryTableData] row into a domain
-  /// [RequestHistoryEntry].
-  static RequestHistoryEntry toEntity(RequestHistoryTableData data) {
-    return RequestHistoryEntry(
+  /// [RequestHistoryTableData].
+  static RequestHistoryTableData toEntity(RequestHistoryTableData data) {
+    return RequestHistoryTableData(
       id: data.id,
       workspaceId: data.workspaceId,
       requestId: data.requestId,
@@ -33,7 +33,7 @@ class HistoryMapper {
   }
 
   /// Converts a list of Drift rows into a list of domain entities.
-  static List<RequestHistoryEntry> toEntityList(
+  static List<RequestHistoryTableData> toEntityList(
       List<RequestHistoryTableData> data) {
     return data.map(toEntity).toList();
   }
@@ -42,9 +42,9 @@ class HistoryMapper {
   // Domain → Data
   // ---------------------------------------------------------------------------
 
-  /// Converts a domain [RequestHistoryEntry] into a Drift
+  /// Converts a domain [RequestHistoryTableData] into a Drift
   /// [RequestHistoryCompanion] suitable for insertion.
-  static RequestHistoryCompanion fromEntity(RequestHistoryEntry entity) {
+  static RequestHistoryCompanion fromEntity(RequestHistoryTableData entity) {
     return RequestHistoryCompanion(
       id: Value(entity.id),
       workspaceId: Value(entity.workspaceId),

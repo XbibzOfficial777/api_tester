@@ -26,6 +26,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 import 'package:api_tester/domain/entities/api_request.dart';
+import 'package:api_tester/domain/entities/api_response.dart';
 import 'package:api_tester/domain/entities/key_value_item.dart';
 import 'package:api_tester/presentation/providers/request_provider.dart';
 import 'widgets/headers_editor.dart';
