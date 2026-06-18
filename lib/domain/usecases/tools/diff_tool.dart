@@ -181,6 +181,8 @@ class DiffTool extends UseCase<DiffToolResult, DiffToolParams> {
         return DiffType.added;
       case -1:
         return DiffType.removed;
+      default:
+        return DiffType.unchanged;
     }
   }
 }
