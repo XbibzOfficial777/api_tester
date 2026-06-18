@@ -246,8 +246,8 @@ class _SchemaGeneratorScreenState extends ConsumerState<SchemaGeneratorScreen> {
                     controller: _jsonController,
                     maxLines: 12,
                     decoration: InputDecoration(
-                      hintText: '{\n  "name": "example",\n  "age": 30\n}',
-                      '\n\nOr paste a JSON response here…',
+                      hintText:
+                          '{\n  "name": "example",\n  "age": 30\n}\n\nOr paste a JSON response here…',
                       border: const OutlineInputBorder(),
                       alignLabelWithHint: true,
                     ),

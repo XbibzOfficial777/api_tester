@@ -36,7 +36,7 @@ class RequestMapper {
       workspaceId: data.workspaceId,
       collectionId: data.collectionId,
       name: data.name,
-      description: data.description,
+      description: data.description ?? '',
       method: HttpMethod.values.firstWhere(
         (e) => e.name == data.method,
         orElse: () => HttpMethod.get,
@@ -45,20 +45,20 @@ class RequestMapper {
       headers: _parseKeyValueItemList(data.headers),
       queryParams: _parseKeyValueItemList(data.queryParams),
       bodyType: BodyTypeX.fromDbString(data.bodyType),
-      bodyContent: data.bodyContent,
+      bodyContent: data.bodyContent ?? '',
       formDataItems: _parseFormDataList(data.formData),
       binaryFilePath: data.binaryFilePath,
       preRequestScript: data.preRequestScript,
       useProxy: data.useProxy,
-      proxyHost: data.proxyHost,
-      proxyPort: data.proxyPort,
+      proxyHost: data.proxyHost ?? '',
+      proxyPort: data.proxyPort ?? 8080,
       proxyType: data.proxyType != null
           ? RequestProxyType.values.firstWhere(
               (e) => e.name == data.proxyType,
               orElse: () => RequestProxyType.http,
             )
           : RequestProxyType.http,
-      timeoutSeconds: data.timeoutSeconds,
+      timeoutSeconds: data.timeoutSeconds ?? 30,
       followRedirects: data.followRedirects,
       verifySsl: data.verifySsl,
       createdAt: data.createdAt,

@@ -12,6 +12,7 @@ import 'package:drift/drift.dart';
 
 import '../../../domain/entities/environment.dart';
 import '../../../domain/entities/environment_variable.dart';
+import '../datasources/local/database/app_database.dart';
 import '../datasources/local/database/tables.dart';
 
 /// Stateless helper providing bidirectional mapping for [Environment].

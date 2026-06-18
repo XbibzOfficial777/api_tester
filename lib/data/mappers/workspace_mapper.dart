@@ -8,6 +8,7 @@ library;
 import 'package:drift/drift.dart';
 
 import '../../../domain/entities/workspace.dart';
+import '../datasources/local/database/app_database.dart';
 import '../datasources/local/database/tables.dart';
 
 /// Stateless helper providing bidirectional mapping for [Workspace].

@@ -417,6 +417,17 @@ class _ImportScreenNotifier extends StateNotifier<_ImportUiState> {
   void reset() {
     state = const _ImportUiState();
   }
+
+  /// Parses an HTTP method string into an [HttpMethod] enum value.
+  ///
+  /// Case-insensitive; falls back to [HttpMethod.get] if the string
+  /// does not match any known method.
+  HttpMethod _parseMethod(String method) {
+    return HttpMethod.values.firstWhere(
+      (e) => e.name.toUpperCase() == method.toUpperCase(),
+      orElse: () => HttpMethod.get,
+    );
+  }
 }
 
 // ---------------------------------------------------------------------------

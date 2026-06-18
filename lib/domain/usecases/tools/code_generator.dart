@@ -41,6 +41,9 @@ enum CodeLanguage {
   /// Go (using net/http).
   @JsonValue('go')
   go,
+
+  /// Plain text — no highlighting.
+  plainText,
 }
 
 /// Parameters for the code generation use case.

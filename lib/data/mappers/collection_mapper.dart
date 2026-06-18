@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 
 import '../../../domain/entities/collection.dart';
+import '../datasources/local/database/app_database.dart';
 import '../datasources/local/database/tables.dart';
 
 /// Stateless helper providing bidirectional mapping for [Collection].
