@@ -132,6 +132,7 @@ class _MainShellState extends ConsumerState<MainShell>
       1 => Symbols.create_new_folder,
       2 => Symbols.delete_sweep,
       3 => Symbols.file_upload,
+      _ => Symbols.add,
     };
   }
 
@@ -142,6 +143,7 @@ class _MainShellState extends ConsumerState<MainShell>
       1 => 'New Collection',
       2 => 'Clear History',
       3 => 'Import',
+      _ => '',
     };
   }
 

@@ -25,25 +25,25 @@ class SyntaxColors {
   const SyntaxColors._();
 
   /// Colour for string tokens.
-  static Color string = const Color(0xFF98C379);
+  static const Color string = Color(0xFF98C379);
 
   /// Colour for number tokens.
-  static Color number = const Color(0xFFD19A66);
+  static const Color number = Color(0xFFD19A66);
 
   /// Colour for boolean / null tokens.
-  static Color boolean = const Color(0xFFC678DD);
+  static const Color boolean = Color(0xFFC678DD);
 
   /// Colour for JSON / XML keys.
-  static Color key = const Color(0xFFE06C75);
+  static const Color key = Color(0xFFE06C75);
 
   /// Colour for punctuation and brackets.
-  static Color punctuation = const Color(0xFFABB2BF);
+  static const Color punctuation = Color(0xFFABB2BF);
 
   /// Colour for tag names in XML.
-  static Color tagName = const Color(0xFFE06C75);
+  static const Color tagName = Color(0xFFE06C75);
 
   /// Colour for attribute values in XML.
-  static Color attribute = const Color(0xFFD19A66);
+  static const Color attribute = Color(0xFFD19A66);
 }
 
 // ---------------------------------------------------------------------------
@@ -481,7 +481,7 @@ class _SyntaxHighlightEditorState extends State<SyntaxHighlightEditor> {
     final textColor = isDark ? const Color(0xFFE0E0E0) : const Color(0xFF212121);
     final lineNumColor =
         textColor.withOpacity(0.35);
-    final gutterWidth = (_lineCount.toString().length * 9.0 + 24).clamp(36, 80);
+    final gutterWidth = (_lineCount.toString().length * 9.0 + 24).clamp(36.0, 80.0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,

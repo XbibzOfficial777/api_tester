@@ -151,7 +151,7 @@ class RunCollection extends UseCase<RunnerResult, RunCollectionParams> {
         final allPassed = evaluatedAssertions.every((a) => a.passed == true);
 
         // Truncate the response body for the runner result display.
-        String truncatedBody = response.body;
+        String truncatedBody = response.body ?? '';
         if (truncatedBody.length > 500) {
           truncatedBody = '${truncatedBody.substring(0, 500)}...';
         }
@@ -239,7 +239,7 @@ class RunCollection extends UseCase<RunnerResult, RunCollectionParams> {
         case AssertionType.bodyContains:
           actualValue = response.body;
           // For bodyContains, we always use "contains" semantics regardless of operator.
-          passed = response.body.contains(assertion.expectedValue);
+          passed = response.body?.contains(assertion.expectedValue) ?? false;
           if (!passed) {
             errorMessage =
                 'Body does not contain "${assertion.expectedValue}"';
@@ -249,8 +249,8 @@ class RunCollection extends UseCase<RunnerResult, RunCollectionParams> {
         case AssertionType.headerExists:
           final headerKey = assertion.expectedValue.toLowerCase();
           actualValue =
-              response.responseHeaders[headerKey] ?? 'NOT_FOUND';
-          passed = response.responseHeaders.containsKey(headerKey);
+              response.headers[headerKey] ?? 'NOT_FOUND';
+          passed = response.headers.containsKey(headerKey);
           if (!passed) {
             errorMessage =
                 'Header "${assertion.expectedValue}" not found in response';
