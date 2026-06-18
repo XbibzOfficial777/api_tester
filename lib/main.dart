@@ -10,7 +10,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:system_alert_window/system_alert_window.dart';
 
 import 'core/di/injection.dart';
 import 'core/theme/app_theme.dart';
@@ -18,45 +17,17 @@ import 'presentation/providers/theme_provider.dart';
 import 'presentation/routes/app_router.dart';
 
 /// Application entry point.
-///
-/// 1. Ensures Flutter bindings are initialised (required for async `main`).
-/// 2. Registers the system alert window callback for Android overlay support.
-/// 3. Locks the device orientation to portrait for a consistent layout.
-/// 4. Registers all dependencies via [configureDependencies].
-/// 5. Launches the app inside a [ProviderScope].
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Attempt to register the system alert window callback for the floating
-  // window feature. This is only functional on Android; on other platforms
-  // the plugin is a safe no-op.
-  try {
-    await _initSystemAlertWindow();
-  } catch (_) {
-    // System alert window not available — safe to ignore.
-  }
-
-  // Set preferred orientations for a consistent single-column layout.
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // Register all singletons, repositories, and use cases.
   await configureDependencies();
 
   runApp(const ProviderScope(child: ApiTesterApp()));
-}
-
-/// Registers the system alert window callback on supported platforms.
-///
-/// Uses [SystemAlertWindow.registerSystemAlertWindowCallback] when
-/// available. Errors are silently swallowed so the app boots regardless
-/// of platform support.
-Future<void> _initSystemAlertWindow() async {
-  await SystemAlertWindow.registerSystemAlertWindowCallback(
-    onWindowClick: () {},
-  );
 }
 
 /// Root widget for the API Tester application.
