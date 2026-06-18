@@ -175,11 +175,11 @@ class DiffTool extends UseCase<DiffToolResult, DiffToolParams> {
   /// Maps a diff_match_patch operation constant to our domain [DiffType].
   DiffType _mapDiffOperation(int operation) {
     switch (operation) {
-      case DiffMatchPatch.DIFF_EQUAL:
+      case 0:
         return DiffType.unchanged;
-      case DiffMatchPatch.DIFF_INSERT:
+      case 1:
         return DiffType.added;
-      case DiffMatchPatch.DIFF_DELETE:
+      case -1:
         return DiffType.removed;
     }
   }
