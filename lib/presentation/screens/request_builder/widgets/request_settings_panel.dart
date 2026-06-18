@@ -169,7 +169,7 @@ class _RequestSettingsPanelState extends ConsumerState<RequestSettingsPanel> {
           onChanged: (v) => notifier.setFollowRedirects(v),
           title: const Text('Follow Redirects'),
           subtitle: const Text('Automatically follow HTTP 3xx redirects'),
-          secondary: const Icon(Symbols.redirect, size: 22),
+          secondary: const Icon(Symbols.redirect_right, size: 22),
           contentPadding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),

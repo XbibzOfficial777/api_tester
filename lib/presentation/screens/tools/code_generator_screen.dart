@@ -20,7 +20,7 @@ import '../../../domain/entities/api_request.dart';
 import '../../../domain/usecases/tools/code_generator.dart';
 import '../../providers/request_provider.dart';
 import '../../providers/workspace_provider.dart';
-import '../../widgets/common/code_view.dart';
+import '../../widgets/common/code_view.dart' hide CodeLanguage;
 import '../../widgets/common/empty_state_widget.dart';
 
 // ---------------------------------------------------------------------------

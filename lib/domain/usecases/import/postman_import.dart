@@ -57,10 +57,10 @@ class PostmanImport extends UseCase<List<ApiRequest>, PostmanImportParams> {
   /// Parses the Postman Collection and returns a list of [ApiRequest] entities.
   @override
   Future<List<ApiRequest>> call(PostmanImportParams params) async {
-    final json = json.decode(params.content) as Map<String, dynamic>;
+    final jsonData = json.decode(params.content) as Map<String, dynamic>;
 
     // Validate the Postman Collection format.
-    final info = json['info'] as Map<String, dynamic>?;
+    final info = jsonData['info'] as Map<String, dynamic>?;
     if (info == null) {
       throw const FormatException(
         'Invalid Postman Collection: missing "info" field',
@@ -68,7 +68,7 @@ class PostmanImport extends UseCase<List<ApiRequest>, PostmanImportParams> {
     }
 
     // Postman Collection v2.1 uses "item" at the root level.
-    final rootItems = json['item'] as List<dynamic>? ?? [];
+    final rootItems = jsonData['item'] as List<dynamic>? ?? [];
 
     final requests = <ApiRequest>[];
     final now = DateTime.now();

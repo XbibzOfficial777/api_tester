@@ -14,11 +14,12 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 
 import '../../../domain/entities/api_request.dart';
 import '../../../domain/entities/api_response.dart';
-import '../../../domain/entities/body_type.dart';
 import '../../../domain/entities/key_value.dart';
+import '../../../domain/entities/key_value_item.dart';
 import '../../../domain/repositories/request_repository.dart';
 import '../datasources/local/database/app_database.dart';
 import '../datasources/remote/api_service.dart';
@@ -53,6 +54,18 @@ class RequestRepositoryImpl implements RequestRepository {
   }
 
   @override
+  Future<ApiRequest> getRequest(String id) async {
+    try {
+      final row = await _db.requestDao.getRequestById(id);
+      if (row == null) {
+        throw Exception('Request with id "$id" not found.');
+      }
+      return RequestMapper.toEntity(row);
+    } catch (e) {
+      throw Exception('Failed to fetch request with id "$id": $e');
+    }
+  }
+
   Future<ApiRequest?> getRequestById(String id) async {
     try {
       final row = await _db.requestDao.getRequestById(id);
@@ -98,7 +111,6 @@ class RequestRepositoryImpl implements RequestRepository {
     }
   }
 
-  @override
   Future<ApiRequest> duplicateRequest(String requestId) async {
     try {
       final row = await _db.requestDao.getRequestById(requestId);
@@ -133,7 +145,6 @@ class RequestRepositoryImpl implements RequestRepository {
     }
   }
 
-  @override
   Future<void> deleteRequestsByWorkspace(String workspaceId) async {
     try {
       await _db.requestDao.deleteRequestsByWorkspace(workspaceId);
@@ -143,7 +154,6 @@ class RequestRepositoryImpl implements RequestRepository {
     }
   }
 
-  @override
   Stream<List<ApiRequest>> watchRequestsByWorkspace(String workspaceId) {
     try {
       return _db.requestDao
@@ -152,6 +162,21 @@ class RequestRepositoryImpl implements RequestRepository {
     } catch (e) {
       throw Exception(
           'Failed to watch requests for workspace "$workspaceId": $e');
+    }
+  }
+
+  @override
+  Future<List<String>> getRecentEndpoints() async {
+    try {
+      final results = await _db.customSelect(
+        'SELECT DISTINCT url FROM request_history ORDER BY timestamp DESC LIMIT 20',
+      ).get();
+      return results
+          .map((row) => row.read<String>('url'))
+          .where((url) => url.isNotEmpty)
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch recent endpoints: $e');
     }
   }
 
@@ -171,7 +196,7 @@ class RequestRepositoryImpl implements RequestRepository {
     // 2. Build query-parameters map from the enabled entries only.
     final queryParams = <String, dynamic>{};
     for (final kv in request.queryParams) {
-      if (kv.enabled && kv.key.isNotEmpty) {
+      if (kv.isEnabled && kv.key.isNotEmpty) {
         queryParams[_substituteVariables(kv.key, variables)] =
             _substituteVariables(kv.value, variables);
       }
@@ -223,7 +248,7 @@ class RequestRepositoryImpl implements RequestRepository {
         responseTimeMs: stopwatch.elapsedMilliseconds,
         contentLength: response.data is String
             ? (response.data as String).length
-            : response.headers.contentLength,
+            : int.tryParse(response.headers.value('content-length') ?? ''),
       );
     } on Exception catch (e) {
       stopwatch.stop();
@@ -328,10 +353,10 @@ class RequestRepositoryImpl implements RequestRepository {
   /// Resolves headers by substituting variables and filtering out
   /// disabled / empty-key entries.
   static Map<String, dynamic> _resolveHeaders(
-      List<KeyValue> headers, Map<String, String> variables) {
+      List<KeyValueItem> headers, Map<String, String> variables) {
     final result = <String, dynamic>{};
     for (final kv in headers) {
-      if (kv.enabled && kv.key.isNotEmpty) {
+      if (kv.isEnabled && kv.key.isNotEmpty) {
         final resolvedKey = _substituteVariables(kv.key, variables);
         final resolvedValue = _substituteVariables(kv.value, variables);
         result[resolvedKey] = resolvedValue;
@@ -424,8 +449,8 @@ class RequestRepositoryImpl implements RequestRepository {
       case BodyType.formData:
         // Build multipart/form-data from the enabled key-value entries.
         final formData = FormData();
-        for (final kv in request.formData) {
-          if (!kv.enabled || kv.key.isEmpty) continue;
+        for (final kv in request.formDataItems) {
+          if (kv.key.isEmpty) continue;
 
           final resolvedKey = _substituteVariables(kv.key, variables);
           final resolvedValue = _substituteVariables(kv.value, variables);
@@ -449,8 +474,8 @@ class RequestRepositoryImpl implements RequestRepository {
       case BodyType.urlEncoded:
         // Build a simple key-value map for URL-encoded body.
         final map = <String, dynamic>{};
-        for (final kv in request.formData) {
-          if (!kv.enabled || kv.key.isEmpty) continue;
+        for (final kv in request.formDataItems) {
+          if (kv.key.isEmpty) continue;
           map[_substituteVariables(kv.key, variables)] =
               _substituteVariables(kv.value, variables);
         }
@@ -494,7 +519,7 @@ class RequestRepositoryImpl implements RequestRepository {
   String? _resolveContentType(ApiRequest request, dynamic body) {
     // Don't override if the user already set a Content-Type header.
     final hasExplicitContentType = request.headers.any(
-      (kv) => kv.enabled && kv.key.toLowerCase() == 'content-type',
+      (kv) => kv.isEnabled && kv.key.toLowerCase() == 'content-type',
     );
 
     if (hasExplicitContentType) {

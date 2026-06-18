@@ -173,11 +173,12 @@ class ApiService {
     Options? options,
   }) async {
     try {
-      return await _dio.options(
+      final merged = _mergeOptions(options, headers)..method = 'OPTIONS';
+      return await _dio.request(
         url,
         data: body,
         queryParameters: queryParameters,
-        options: _mergeOptions(options, headers),
+        options: merged,
         cancelToken: cancelToken,
       );
     } on DioException catch (e) {

@@ -473,7 +473,6 @@ class _GraphQLScreenState extends ConsumerState<GraphQLScreen> {
           Container(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: Autocomplete<String>(
-              focusNode: _urlFocusNode,
               fieldViewBuilder: (context, controller, focusNode, onSubmitted) {
                 // Sync with our controller.
                 if (_urlController.text != controller.text) {

@@ -424,7 +424,7 @@ class _WorkspaceSelector extends ConsumerWidget {
             ),
           ];
         }
-        return workspaces.map<PopupMenuItem<String>>((w) {
+        return workspaces.map<PopupMenuEntry<String>>((w) {
           final isSelected = w.id == activeId;
           return PopupMenuItem(
             value: w.id,

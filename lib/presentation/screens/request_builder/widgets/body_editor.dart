@@ -113,7 +113,7 @@ class _BodyEditorState extends ConsumerState<BodyEditor> {
 
     switch (bodyType) {
       case BodyType.none:
-        return const _NoneBody();
+        return _NoneBody();
       case BodyType.formData:
         return _FormDataBody(
           items: formState.formDataItems as List<FormDataItem>,

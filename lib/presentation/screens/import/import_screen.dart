@@ -14,6 +14,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -555,7 +556,7 @@ class _OpenApiTab extends ConsumerWidget {
       final result = await FilePicker.platform.pickFiles();
       if (result != null && result.files.single.path != null) {
         final content = await String.fromCharCodes(
-            await result.files.single.readAsBytes());
+            await File(result.files.single.path!).readAsBytes());
         contentController.text = content;
       }
     } catch (e) {
@@ -717,7 +718,7 @@ class _PostmanTab extends ConsumerWidget {
       final result = await FilePicker.platform.pickFiles();
       if (result != null && result.files.single.path != null) {
         final content = await String.fromCharCodes(
-            await result.files.single.readAsBytes());
+            await File(result.files.single.path!).readAsBytes());
         controller.text = content;
       }
     } catch (e) {
@@ -942,7 +943,7 @@ class _HarTab extends ConsumerWidget {
       final result = await FilePicker.platform.pickFiles();
       if (result != null && result.files.single.path != null) {
         final content = await String.fromCharCodes(
-            await result.files.single.readAsBytes());
+            await File(result.files.single.path!).readAsBytes());
         controller.text = content;
       }
     } catch (e) {

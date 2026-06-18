@@ -4,6 +4,9 @@
 /// the [SettingsDao] with domain-appropriate error handling.
 library;
 
+import 'dart:convert';
+
+import '../../../domain/entities/app_settings.dart';
 import '../../../domain/repositories/settings_repository.dart';
 import '../datasources/local/database/app_database.dart';
 
@@ -20,6 +23,34 @@ class SettingsRepositoryImpl implements SettingsRepository {
   // ---------------------------------------------------------------------------
 
   @override
+  Future<AppSettings> getAppSettings() async {
+    try {
+      final jsonStr = await _db.settingsDao.getValue('app_settings');
+      if (jsonStr == null || jsonStr.isEmpty) {
+        return const AppSettings();
+      }
+      final decoded = json.decode(jsonStr) as Map<String, dynamic>;
+      return AppSettings.fromJson(decoded);
+    } catch (e) {
+      throw Exception('Failed to get app settings: $e');
+    }
+  }
+
+  @override
+  Future<AppSettings> updateAppSettings(AppSettings settings) async {
+    try {
+      final jsonStr = json.encode(settings.toJson());
+      await _db.settingsDao.setValue('app_settings', jsonStr);
+      return settings;
+    } catch (e) {
+      throw Exception('Failed to update app settings: $e');
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Extra key-value helpers (not in the interface but used internally)
+  // ---------------------------------------------------------------------------
+
   Future<String?> getValue(String key) async {
     try {
       return await _db.settingsDao.getValue(key);
@@ -28,7 +59,6 @@ class SettingsRepositoryImpl implements SettingsRepository {
     }
   }
 
-  @override
   Future<String> getValueOrDefault(String key, String defaultValue) async {
     try {
       return await _db.settingsDao.getValueOrDefault(key, defaultValue);
@@ -37,7 +67,6 @@ class SettingsRepositoryImpl implements SettingsRepository {
     }
   }
 
-  @override
   Future<void> setValue(String key, String value) async {
     try {
       await _db.settingsDao.setValue(key, value);
@@ -46,7 +75,6 @@ class SettingsRepositoryImpl implements SettingsRepository {
     }
   }
 
-  @override
   Future<void> removeValue(String key) async {
     try {
       await _db.settingsDao.removeValue(key);
@@ -55,7 +83,6 @@ class SettingsRepositoryImpl implements SettingsRepository {
     }
   }
 
-  @override
   Future<bool> containsKey(String key) async {
     try {
       return await _db.settingsDao.containsKey(key);
@@ -64,7 +91,6 @@ class SettingsRepositoryImpl implements SettingsRepository {
     }
   }
 
-  @override
   Future<Map<String, String>> getAllSettings() async {
     try {
       return await _db.settingsDao.getAllSettings();
@@ -73,7 +99,6 @@ class SettingsRepositoryImpl implements SettingsRepository {
     }
   }
 
-  @override
   Future<void> clearAll() async {
     try {
       await _db.settingsDao.clearAll();

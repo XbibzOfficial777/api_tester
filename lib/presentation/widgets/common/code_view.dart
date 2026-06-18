@@ -241,7 +241,7 @@ class _CodeViewState extends State<CodeView> {
               ),
             )
                 .animate(target: _isCollapsed ? 0 : 1)
-                .size(duration: 250.ms, curve: Curves.easeInOut),
+                .scale(duration: 250.ms, curve: Curves.easeInOut),
         ],
       ),
     );

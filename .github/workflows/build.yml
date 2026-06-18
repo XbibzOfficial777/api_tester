@@ -43,6 +43,11 @@ jobs:
           cp /tmp/main.dart lib/main.dart
           cp /tmp/pubspec.yaml pubspec.yaml
 
+      - name: Patch compileSdk to 35
+        run: |
+          sed -i 's/compileSdkVersion 34/compileSdkVersion 35/' android/app/build.gradle
+          sed -i 's/targetSdkVersion 34/targetSdkVersion 35/' android/app/build.gradle
+
       - name: Get dependencies (after flutter create)
         run: flutter pub get
 

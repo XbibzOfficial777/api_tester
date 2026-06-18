@@ -142,3 +142,26 @@ class ApiRequest with _$ApiRequest {
   factory ApiRequest.fromJson(Map<String, dynamic> json) =>
       _$ApiRequestFromJson(json);
 }
+
+/// Extension that provides a human-readable display name for each [BodyType].
+extension BodyTypeX on BodyType {
+  /// A short user-facing label.
+  String get label => switch (this) {
+        BodyType.none       => 'None',
+        BodyType.formData   => 'Form Data',
+        BodyType.urlEncoded => 'URL Encoded',
+        BodyType.raw        => 'Raw',
+        BodyType.binary     => 'Binary',
+      };
+
+  /// Serialises the enum to the string value stored in the database.
+  String toDbString() => name;
+
+  /// Deserialises a database string back to a [BodyType].
+  static BodyType fromDbString(String value) {
+    return BodyType.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => BodyType.none,
+    );
+  }
+}

@@ -24,7 +24,7 @@ class WorkspaceRepositoryImpl implements WorkspaceRepository {
   // ---------------------------------------------------------------------------
 
   @override
-  Future<List<Workspace>> getAllWorkspaces() async {
+  Future<List<Workspace>> getWorkspaces() async {
     try {
       final rows = await _db.workspaceDao.getAllWorkspaces();
       return WorkspaceMapper.toEntityList(rows);
@@ -34,6 +34,27 @@ class WorkspaceRepositoryImpl implements WorkspaceRepository {
   }
 
   @override
+  Future<Workspace> getWorkspace(String id) async {
+    try {
+      final row = await _db.workspaceDao.getWorkspaceById(id);
+      if (row == null) {
+        throw Exception('Workspace with id "$id" not found.');
+      }
+      return WorkspaceMapper.toEntity(row);
+    } catch (e) {
+      throw Exception('Failed to fetch workspace with id "$id": $e');
+    }
+  }
+
+  Future<List<Workspace>> getAllWorkspaces() async {
+    try {
+      final rows = await _db.workspaceDao.getAllWorkspaces();
+      return WorkspaceMapper.toEntityList(rows);
+    } catch (e) {
+      throw Exception('Failed to fetch workspaces: $e');
+    }
+  }
+
   Future<Workspace?> getWorkspaceById(String id) async {
     try {
       final row = await _db.workspaceDao.getWorkspaceById(id);
@@ -84,7 +105,6 @@ class WorkspaceRepositoryImpl implements WorkspaceRepository {
     }
   }
 
-  @override
   Stream<List<Workspace>> watchAllWorkspaces() {
     try {
       return _db.workspaceDao

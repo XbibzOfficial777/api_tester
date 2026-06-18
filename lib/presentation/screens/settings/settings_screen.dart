@@ -474,7 +474,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
               // Follow redirects.
               SwitchListTile(
-                secondary: const Icon(Symbols.redirect),
+                secondary: const Icon(Symbols.redirect_right),
                 title: const Text('Follow Redirects'),
                 subtitle: const Text('Automatically follow HTTP 3xx responses'),
                 value: settings.defaultFollowRedirects,

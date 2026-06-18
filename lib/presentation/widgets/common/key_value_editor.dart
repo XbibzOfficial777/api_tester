@@ -292,7 +292,6 @@ class _KeyValueRow extends StatelessWidget {
             child: Switch(
               value: isEnabled,
               onChanged: onEnabledChanged,
-              visualDensity: VisualDensity.compact,
             ),
           ),
 

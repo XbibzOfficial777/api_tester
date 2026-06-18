@@ -2,8 +2,8 @@
 /// and the domain [Environment] entity.
 ///
 /// The [EnvironmentTableData.variables] column is stored as a JSON-encoded
-/// list of `{key, value, enabled}` objects; this mapper handles the
-/// serialisation / deserialisation.
+/// list of `{key, value, type, description, enabled}` objects; this mapper
+/// handles the serialisation / deserialisation.
 library;
 
 import 'dart:convert';
@@ -11,7 +11,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 
 import '../../../domain/entities/environment.dart';
-import '../../../domain/entities/key_value.dart';
+import '../../../domain/entities/environment_variable.dart';
 import '../datasources/local/database/tables.dart';
 
 /// Stateless helper providing bidirectional mapping for [Environment].
@@ -28,7 +28,7 @@ class EnvironmentMapper {
       id: data.id,
       workspaceId: data.workspaceId,
       name: data.name,
-      variables: _parseKeyValueList(data.variables),
+      variables: _parseEnvironmentVariables(data.variables),
       isGlobal: data.isGlobal,
       isActive: data.isActive,
       createdAt: data.createdAt,
@@ -51,7 +51,7 @@ class EnvironmentMapper {
       id: Value(entity.id),
       workspaceId: Value(entity.workspaceId),
       name: Value(entity.name),
-      variables: Value(_encodeKeyValueList(entity.variables)),
+      variables: Value(_encodeEnvironmentVariables(entity.variables)),
       isGlobal: Value(entity.isGlobal),
       isActive: Value(entity.isActive),
       createdAt: Value(entity.createdAt),
@@ -63,8 +63,17 @@ class EnvironmentMapper {
   // Private helpers
   // ---------------------------------------------------------------------------
 
-  /// Parses a JSON-encoded string into a [List<KeyValue>].
-  static List<KeyValue> _parseKeyValueList(String? jsonString) {
+  /// Parses a JSON-encoded string into a [List<EnvironmentVariable>].
+  ///
+  /// Returns an empty list when:
+  /// - [jsonString] is empty or `null`.
+  /// - The JSON is malformed.
+  /// - An element is missing required fields.
+  ///
+  /// The database stores `enabled` while the entity uses `isEnabled`.
+  /// If a `type` field is missing it defaults to [VariableType.string];
+  /// if `description` is missing it defaults to an empty string.
+  static List<EnvironmentVariable> _parseEnvironmentVariables(String? jsonString) {
     if (jsonString == null || jsonString.isEmpty) {
       return [];
     }
@@ -74,10 +83,23 @@ class EnvironmentMapper {
       return decoded
           .map((item) {
             final map = item as Map<String, dynamic>;
-            return KeyValue(
+
+            // Parse the type – fall back to string for legacy / missing values.
+            VariableType type = VariableType.string;
+            final rawType = map['type'];
+            if (rawType is String) {
+              type = VariableType.values.firstWhere(
+                (e) => e.name == rawType,
+                orElse: () => VariableType.string,
+              );
+            }
+
+            return EnvironmentVariable(
               key: map['key'] as String? ?? '',
               value: map['value'] as String? ?? '',
-              enabled: map['enabled'] as bool? ?? true,
+              type: type,
+              description: map['description'] as String? ?? '',
+              isEnabled: map['enabled'] as bool? ?? true,
             );
           })
           .toList();
@@ -86,13 +108,15 @@ class EnvironmentMapper {
     }
   }
 
-  /// Serialises a [List<KeyValue>] into a JSON string.
-  static String _encodeKeyValueList(List<KeyValue> pairs) {
-    final encoded = pairs
-        .map((kv) => {
-              'key': kv.key,
-              'value': kv.value,
-              'enabled': kv.enabled,
+  /// Serialises a [List<EnvironmentVariable>] into a JSON string.
+  static String _encodeEnvironmentVariables(List<EnvironmentVariable> variables) {
+    final encoded = variables
+        .map((v) => {
+              'key': v.key,
+              'value': v.value,
+              'type': v.type.name,
+              'description': v.description,
+              'enabled': v.isEnabled,
             })
         .toList();
     return json.encode(encoded);

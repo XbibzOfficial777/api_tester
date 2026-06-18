@@ -193,9 +193,9 @@ class OpenApiImport extends UseCase<List<ApiRequest>, OpenApiImportParams> {
     final allParams = <Map<String, dynamic>>[];
     // Path-level parameters are in the parent path item (not in operation),
     // but we already have the full pathItem. We need to exclude operation fields.
-    final pathItemParams = (spec['paths'][path] as Map<String, dynamic>?)
-            ?.containsKey('parameters')
-        ? (spec['paths'][path] as Map<String, dynamic>)['parameters'] as List
+    final pathItem = spec['paths'][path] as Map<String, dynamic>?;
+    final pathItemParams = (pathItem?.containsKey('parameters') ?? false)
+        ? pathItem!['parameters'] as List
         : <dynamic>[];
 
     for (final p in pathItemParams) {

@@ -269,7 +269,7 @@ class _ProxySettingsScreenState extends ConsumerState<ProxySettingsScreen> {
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               secondary: Icon(
-                _enabled ? Symbols.vpn_lock : Symbols.vpn_lock_off,
+                _enabled ? Symbols.vpn_lock : Symbols.lock_open,
                 color: _enabled ? colorScheme.primary : colorScheme.onSurfaceVariant,
               ),
               title: Text(
@@ -508,7 +508,7 @@ class _ProxySettingsScreenState extends ConsumerState<ProxySettingsScreen> {
                 child: Column(
                   children: [
                     Icon(
-                      Symbols.vpn_lock_off,
+                      Symbols.lock_open,
                       size: 48,
                       color: colorScheme.outline,
                     ),

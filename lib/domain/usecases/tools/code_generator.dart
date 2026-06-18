@@ -6,6 +6,8 @@
 /// HTTP request. Supports 7 programming languages/frameworks.
 library;
 
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../../entities/api_request.dart';
 import '../../entities/form_data_item.dart';
 import '../usecase.dart';

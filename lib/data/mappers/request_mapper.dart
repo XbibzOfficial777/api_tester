@@ -9,15 +9,18 @@ library;
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../domain/entities/api_request.dart';
-import '../../../domain/entities/body_type.dart';
-import '../../../domain/entities/key_value.dart';
+import '../../../domain/entities/form_data_item.dart';
+import '../../../domain/entities/key_value_item.dart';
 import '../datasources/local/database/app_database.dart';
 
 /// Stateless helper providing bidirectional mapping for [ApiRequest].
 class RequestMapper {
   RequestMapper._();
+
+  static const _uuid = Uuid();
 
   // ---------------------------------------------------------------------------
   // Data → Domain
@@ -34,21 +37,27 @@ class RequestMapper {
       collectionId: data.collectionId,
       name: data.name,
       description: data.description,
-      method: HttpMethod.fromString(data.method),
+      method: HttpMethod.values.firstWhere(
+        (e) => e.name == data.method,
+        orElse: () => HttpMethod.get,
+      ),
       url: data.url,
-      headers: _parseKeyValueList(data.headers),
-      queryParams: _parseKeyValueList(data.queryParams),
-      bodyType: BodyType.fromDbString(data.bodyType),
+      headers: _parseKeyValueItemList(data.headers),
+      queryParams: _parseKeyValueItemList(data.queryParams),
+      bodyType: BodyTypeX.fromDbString(data.bodyType),
       bodyContent: data.bodyContent,
-      formData: _parseKeyValueList(data.formData),
+      formDataItems: _parseFormDataList(data.formData),
       binaryFilePath: data.binaryFilePath,
       preRequestScript: data.preRequestScript,
       useProxy: data.useProxy,
       proxyHost: data.proxyHost,
       proxyPort: data.proxyPort,
       proxyType: data.proxyType != null
-          ? ProxyType.fromString(data.proxyType!)
-          : null,
+          ? RequestProxyType.values.firstWhere(
+              (e) => e.name == data.proxyType,
+              orElse: () => RequestProxyType.http,
+            )
+          : RequestProxyType.http,
       timeoutSeconds: data.timeoutSeconds,
       followRedirects: data.followRedirects,
       verifySsl: data.verifySsl,
@@ -78,17 +87,17 @@ class RequestMapper {
       description: Value(entity.description),
       method: Value(entity.method.name),
       url: Value(entity.url),
-      headers: Value(_encodeKeyValueList(entity.headers)),
-      queryParams: Value(_encodeKeyValueList(entity.queryParams)),
+      headers: Value(_encodeKeyValueItemList(entity.headers)),
+      queryParams: Value(_encodeKeyValueItemList(entity.queryParams)),
       bodyType: Value(entity.bodyType.toDbString()),
       bodyContent: Value(entity.bodyContent),
-      formData: Value(_encodeKeyValueList(entity.formData)),
+      formData: Value(_encodeFormDataList(entity.formDataItems)),
       binaryFilePath: Value(entity.binaryFilePath),
       preRequestScript: Value(entity.preRequestScript),
       useProxy: Value(entity.useProxy),
       proxyHost: Value(entity.proxyHost),
       proxyPort: Value(entity.proxyPort),
-      proxyType: Value(entity.proxyType?.name),
+      proxyType: Value(entity.proxyType.name),
       timeoutSeconds: Value(entity.timeoutSeconds),
       followRedirects: Value(entity.followRedirects),
       verifySsl: Value(entity.verifySsl),
@@ -101,13 +110,16 @@ class RequestMapper {
   // Private helpers
   // ---------------------------------------------------------------------------
 
-  /// Parses a JSON-encoded string into a [List<KeyValue>].
+  /// Parses a JSON-encoded string into a [List<KeyValueItem>].
   ///
   /// Returns an empty list when:
   /// - [jsonString] is empty or `null`.
   /// - The JSON is malformed.
   /// - An element is missing required fields.
-  static List<KeyValue> _parseKeyValueList(String? jsonString) {
+  ///
+  /// If an `id` field is present in the JSON it is reused; otherwise a new
+  /// UUID v4 is generated.
+  static List<KeyValueItem> _parseKeyValueItemList(String? jsonString) {
     if (jsonString == null || jsonString.isEmpty) {
       return [];
     }
@@ -117,10 +129,11 @@ class RequestMapper {
       return decoded
           .map((item) {
             final map = item as Map<String, dynamic>;
-            return KeyValue(
+            return KeyValueItem(
               key: map['key'] as String? ?? '',
               value: map['value'] as String? ?? '',
-              enabled: map['enabled'] as bool? ?? true,
+              isEnabled: map['enabled'] as bool? ?? true,
+              id: map['id'] as String? ?? _uuid.v4(),
             );
           })
           .toList();
@@ -130,13 +143,65 @@ class RequestMapper {
     }
   }
 
-  /// Serialises a [List<KeyValue>] into a JSON string.
-  static String _encodeKeyValueList(List<KeyValue> pairs) {
+  /// Serialises a [List<KeyValueItem>] into a JSON string.
+  static String _encodeKeyValueItemList(List<KeyValueItem> pairs) {
     final encoded = pairs
         .map((kv) => {
+              'id': kv.id,
               'key': kv.key,
               'value': kv.value,
-              'enabled': kv.enabled,
+              'enabled': kv.isEnabled,
+            })
+        .toList();
+    return json.encode(encoded);
+  }
+
+  /// Parses a JSON-encoded string into a [List<FormDataItem>].
+  ///
+  /// Returns an empty list when:
+  /// - [jsonString] is empty or `null`.
+  /// - The JSON is malformed.
+  /// - An element is missing required fields.
+  ///
+  /// If an `id` field is present in the JSON it is reused; otherwise a new
+  /// UUID v4 is generated.
+  static List<FormDataItem> _parseFormDataList(String? jsonString) {
+    if (jsonString == null || jsonString.isEmpty) {
+      return [];
+    }
+
+    try {
+      final decoded = json.decode(jsonString) as List<dynamic>;
+      return decoded
+          .map((item) {
+            final map = item as Map<String, dynamic>;
+            return FormDataItem(
+              key: map['key'] as String? ?? '',
+              value: map['value'] as String? ?? '',
+              isFile: map['isFile'] as bool? ?? false,
+              filePath: map['filePath'] as String? ?? '',
+              fileName: map['fileName'] as String? ?? '',
+              contentType: map['contentType'] as String? ?? '',
+              id: map['id'] as String? ?? _uuid.v4(),
+            );
+          })
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Serialises a [List<FormDataItem>] into a JSON string.
+  static String _encodeFormDataList(List<FormDataItem> items) {
+    final encoded = items
+        .map((item) => {
+              'id': item.id,
+              'key': item.key,
+              'value': item.value,
+              'isFile': item.isFile,
+              'filePath': item.filePath,
+              'fileName': item.fileName,
+              'contentType': item.contentType,
             })
         .toList();
     return json.encode(encoded);

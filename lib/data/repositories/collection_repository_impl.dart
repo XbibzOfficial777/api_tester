@@ -36,6 +36,18 @@ class CollectionRepositoryImpl implements CollectionRepository {
   }
 
   @override
+  Future<Collection> getCollection(String id) async {
+    try {
+      final row = await _db.collectionDao.getCollectionById(id);
+      if (row == null) {
+        throw Exception('Collection with id "$id" not found.');
+      }
+      return CollectionMapper.toEntity(row);
+    } catch (e) {
+      throw Exception('Failed to fetch collection with id "$id": $e');
+    }
+  }
+
   Future<Collection?> getCollectionById(String id) async {
     try {
       final row = await _db.collectionDao.getCollectionById(id);
@@ -93,6 +105,91 @@ class CollectionRepositoryImpl implements CollectionRepository {
   }
 
   @override
+  Future<void> addRequestToCollection(
+    String collectionId,
+    String requestId, {
+    int? index,
+  }) async {
+    try {
+      final collection = await getCollection(collectionId);
+      if (collection.requestIds.contains(requestId)) return;
+
+      final newIds = List<String>.from(collection.requestIds);
+      if (index != null && index >= 0 && index <= newIds.length) {
+        newIds.insert(index, requestId);
+      } else {
+        newIds.add(requestId);
+      }
+
+      final updated = collection.copyWith(
+        requestIds: newIds,
+        updatedAt: DateTime.now(),
+      );
+      await _db.collectionDao.updateCollection(
+        CollectionMapper.fromEntity(updated),
+      );
+    } catch (e) {
+      throw Exception(
+          'Failed to add request "$requestId" to collection "$collectionId": $e');
+    }
+  }
+
+  @override
+  Future<void> removeRequestFromCollection(
+    String collectionId,
+    String requestId,
+  ) async {
+    try {
+      final collection = await getCollection(collectionId);
+      if (!collection.requestIds.contains(requestId)) return;
+
+      final newIds = List<String>.from(collection.requestIds)
+        ..remove(requestId);
+
+      final updated = collection.copyWith(
+        requestIds: newIds,
+        updatedAt: DateTime.now(),
+      );
+      await _db.collectionDao.updateCollection(
+        CollectionMapper.fromEntity(updated),
+      );
+    } catch (e) {
+      throw Exception(
+          'Failed to remove request "$requestId" from collection "$collectionId": $e');
+    }
+  }
+
+  @override
+  Future<void> reorderRequests(
+    String collectionId,
+    List<String> requestIds,
+  ) async {
+    try {
+      final collection = await getCollection(collectionId);
+
+      // Validate that the new list contains the same IDs as the current one.
+      final currentSet = collection.requestIds.toSet();
+      final newSet = requestIds.toSet();
+      if (currentSet != newSet) {
+        throw ArgumentError(
+          'reorderRequests: the provided requestIds do not match the '
+          'current collection contents.',
+        );
+      }
+
+      final updated = collection.copyWith(
+        requestIds: requestIds,
+        updatedAt: DateTime.now(),
+      );
+      await _db.collectionDao.updateCollection(
+        CollectionMapper.fromEntity(updated),
+      );
+    } catch (e) {
+      throw Exception(
+          'Failed to reorder requests in collection "$collectionId": $e');
+    }
+  }
+
   Future<void> deleteCollectionsByWorkspace(String workspaceId) async {
     try {
       await _db.collectionDao.deleteCollectionsByWorkspace(workspaceId);
@@ -102,7 +199,6 @@ class CollectionRepositoryImpl implements CollectionRepository {
     }
   }
 
-  @override
   Stream<List<Collection>> watchCollectionsByWorkspace(String workspaceId) {
     try {
       return _db.collectionDao

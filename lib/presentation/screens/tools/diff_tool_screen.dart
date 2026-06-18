@@ -6,6 +6,7 @@
 /// button, colour-coded diff results, and a statistics panel.
 library;
 
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -146,7 +147,7 @@ class _DiffToolScreenState extends ConsumerState<DiffToolScreen> {
       final result = await FilePicker.platform.pickFiles();
       if (result != null && result.files.single.path != null) {
         final content =
-            await String.fromCharCodes(await result.files.single.readAsBytes());
+            await String.fromCharCodes(await File(result.files.single.path!).readAsBytes());
         setState(() {
           if (isLeft) {
             _leftController.text = content;

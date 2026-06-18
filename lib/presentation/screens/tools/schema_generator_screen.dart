@@ -7,6 +7,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -143,7 +144,7 @@ class _SchemaGeneratorScreenState extends ConsumerState<SchemaGeneratorScreen> {
       final result = await FilePicker.platform.pickFiles();
       if (result != null && result.files.single.path != null) {
         final content = await String.fromCharCodes(
-            await result.files.single.readAsBytes());
+            await File(result.files.single.path!).readAsBytes());
         setState(() {
           _jsonController.text = content;
         });

@@ -7,6 +7,7 @@
 library;
 
 import 'package:diff_match_patch/diff_match_patch.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../usecase.dart';
 
@@ -132,7 +133,7 @@ class DiffTool extends UseCase<DiffToolResult, DiffToolParams> {
   /// Computes the diff between the original and modified strings.
   @override
   Future<DiffToolResult> call(DiffToolParams params) async {
-    final diffs = _dmp.diffMain(params.original, params.modified);
+    final diffs = _dmp.diff(params.original, params.modified);
 
     // Clean up the diff for human readability.
     _dmp.diffCleanupSemantic(diffs);
@@ -171,14 +172,14 @@ class DiffTool extends UseCase<DiffToolResult, DiffToolParams> {
     return DiffToolResult(results: results, statistics: statistics);
   }
 
-  /// Maps a diff_match_patch [Operation] to our domain [DiffType].
-  DiffType _mapDiffOperation(Operation operation) {
+  /// Maps a diff_match_patch operation constant to our domain [DiffType].
+  DiffType _mapDiffOperation(int operation) {
     switch (operation) {
-      case Operation.equal:
+      case Diff.EQUAL:
         return DiffType.unchanged;
-      case Operation.insert:
+      case Diff.INSERT:
         return DiffType.added;
-      case Operation.delete:
+      case Diff.DELETE:
         return DiffType.removed;
     }
   }

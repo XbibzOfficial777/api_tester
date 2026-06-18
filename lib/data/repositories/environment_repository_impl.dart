@@ -42,6 +42,18 @@ class EnvironmentRepositoryImpl implements EnvironmentRepository {
   }
 
   @override
+  Future<Environment> getEnvironment(String id) async {
+    try {
+      final row = await _db.environmentDao.getEnvironmentById(id);
+      if (row == null) {
+        throw Exception('Environment with id "$id" not found.');
+      }
+      return EnvironmentMapper.toEntity(row);
+    } catch (e) {
+      throw Exception('Failed to fetch environment with id "$id": $e');
+    }
+  }
+
   Future<Environment?> getEnvironmentById(String id) async {
     try {
       final row = await _db.environmentDao.getEnvironmentById(id);
@@ -109,16 +121,12 @@ class EnvironmentRepositoryImpl implements EnvironmentRepository {
   }
 
   @override
-  Future<void> setActiveEnvironment(String id) async {
+  Future<void> setActiveEnvironment(String workspaceId, String environmentId) async {
     try {
-      // First, look up the environment to determine its workspace.
-      final env = await _db.environmentDao.getEnvironmentById(id);
-      if (env == null) {
-        throw Exception('Environment with id "$id" not found.');
-      }
-      await _db.environmentDao.setActiveEnvironment(env.workspaceId, id);
+      await _db.environmentDao.setActiveEnvironment(workspaceId, environmentId);
     } catch (e) {
-      throw Exception('Failed to set active environment "$id": $e');
+      throw Exception(
+          'Failed to set active environment "$environmentId" for workspace "$workspaceId": $e');
     }
   }
 
@@ -132,7 +140,7 @@ class EnvironmentRepositoryImpl implements EnvironmentRepository {
   }
 
   @override
-  Future<Map<String, String>> resolveVariables(String workspaceId) async {
+  Future<String> resolveVariables(String workspaceId, String input) async {
     try {
       final variables = <String, String>{};
 
@@ -161,14 +169,18 @@ class EnvironmentRepositoryImpl implements EnvironmentRepository {
         }
       }
 
-      return variables;
+      // 3. Replace all {{variable}} placeholders in the input string.
+      String result = input;
+      for (final entry in variables.entries) {
+        result = result.replaceAll('{{${entry.key}}}', entry.value);
+      }
+      return result;
     } catch (e) {
       throw Exception(
           'Failed to resolve variables for workspace "$workspaceId": $e');
     }
   }
 
-  @override
   Stream<List<Environment>> watchEnvironmentsByWorkspace(String workspaceId) {
     try {
       return _db.environmentDao
