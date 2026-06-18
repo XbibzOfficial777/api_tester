@@ -266,7 +266,7 @@ class Assertions extends Table {
   TextColumn get expectedValue => text().nullable()();
 
   /// Comparison operator enum name (equals, contains, …).
-  TextColumn get operator => text()();
+  TextColumn get comparisonOperator => text().named('operator')();
 
   /// The actual value extracted at evaluation time.
   TextColumn get actualValue => text().nullable()();

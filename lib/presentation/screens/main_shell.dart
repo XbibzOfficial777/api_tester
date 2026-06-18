@@ -16,6 +16,7 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 import '../../core/constants/app_constants.dart';
 import '../../domain/entities/app_settings.dart' as domain;
+import '../../domain/entities/workspace.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/theme_provider.dart';
