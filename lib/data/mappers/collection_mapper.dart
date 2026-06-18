@@ -27,7 +27,7 @@ class CollectionMapper {
       id: data.id,
       workspaceId: data.workspaceId,
       name: data.name,
-      description: data.description,
+      description: data.description ?? '',
       requestIds: _parseStringList(data.requestIds),
       delayBetweenRequestsMs: data.delayMs,
       stopOnError: data.stopOnError,

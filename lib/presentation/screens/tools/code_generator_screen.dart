@@ -21,6 +21,7 @@ import '../../../domain/usecases/tools/code_generator.dart';
 import '../../providers/request_provider.dart';
 import '../../providers/workspace_provider.dart';
 import '../../widgets/common/code_view.dart' hide CodeLanguage;
+import '../../widgets/common/code_view.dart' as cv;
 import '../../widgets/common/empty_state_widget.dart';
 
 // ---------------------------------------------------------------------------
@@ -378,7 +379,7 @@ class _CodeGeneratorScreenState extends ConsumerState<CodeGeneratorScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: CodeView(
                   code: generatedCode,
-                  language: CodeLanguage.plainText,
+                  language: cv.CodeLanguage.plainText,
                   title: '${selectedLang.name.toUpperCase()} Code',
                   maxHeight: double.infinity,
                 ),

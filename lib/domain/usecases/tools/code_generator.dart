@@ -92,6 +92,9 @@ class CodeGenerator extends UseCase<String, CodeGeneratorParams> {
         return _generateCSharp(request);
       case CodeLanguage.go:
         return _generateGo(request);
+      case CodeLanguage.plainText:
+        // plainText is not a generatable language; return curl as fallback.
+        return _generateCurl(request);
     }
   }
 
